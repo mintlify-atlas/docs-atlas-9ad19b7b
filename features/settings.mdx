@@ -1,0 +1,287 @@
+---
+title: Settings
+description: Configure VidArchive to customize downloads, manage dependencies, and control application behavior
+---
+
+The Settings page lets you configure VidArchive's behavior, manage download locations, set up cookies for accessing restricted content, and control system dependencies. Access Settings by clicking the settings icon in the navigation.
+
+## Application information
+
+### App version
+
+Displays the currently installed version of VidArchive. Use this when:
+- Reporting bugs or issues
+- Checking if updates are available
+- Verifying your installation
+
+### yt-dlp version
+
+Shows the version of yt-dlp (the underlying download engine) currently installed. This component handles:
+- Media information extraction
+- Download processing
+- Format selection
+- Platform compatibility
+
+<Info>
+yt-dlp is regularly updated to maintain compatibility with platform changes. Keep it updated for the best experience.
+</Info>
+
+## Download settings
+
+### Downloads folder
+
+Configure where downloaded media files are saved:
+
+<Steps>
+  <Step title="Click folder button">
+    Click the folder icon next to the downloads folder path.
+  </Step>
+  
+  <Step title="Select folder">
+    Choose a folder using your system's folder picker dialog.
+  </Step>
+  
+  <Step title="Path updated">
+    The new path appears in the input field. Click "Save settings" to apply.
+  </Step>
+</Steps>
+
+By default, VidArchive uses your system's Downloads folder.
+
+<Note>
+Changing the downloads folder only affects future downloads. Previously downloaded files remain in their original locations.
+</Note>
+
+### Remember previous downloads folder
+
+Control whether VidArchive remembers the last folder you selected for downloads:
+
+- **Enabled**: Each download uses the folder you selected for the previous download
+- **Disabled**: Every download defaults to the configured downloads folder
+
+<Accordion title="When to enable this option">
+  Enable "Remember previous downloads folder" if you:
+  - Frequently download to different locations
+  - Organize downloads into specific project folders
+  - Want the app to use your most recent folder choice
+
+  Disable it if you:
+  - Always want downloads in the same default location
+  - Prefer consistent behavior regardless of previous actions
+</Accordion>
+
+### Max concurrent downloads
+
+Control how many downloads can run simultaneously:
+
+- **Minimum**: 1 (downloads run one at a time)
+- **Maximum**: 5 (up to five downloads at once)
+- **Default**: 2
+
+Use the plus and minus buttons to adjust the value.
+
+<Accordion title="Choosing the right concurrency level">
+  **Lower values (1-2):**
+  - Each download gets more bandwidth
+  - Faster individual download speeds
+  - Lower system resource usage
+  - Better for slower internet connections
+
+  **Higher values (3-5):**
+  - More downloads complete in total over time
+  - Lower speed per individual download
+  - Higher system resource usage
+  - Better for fast internet connections
+
+  Most users find 2-3 concurrent downloads provides the best balance.
+</Accordion>
+
+## Cookies configuration
+
+Cookies allow VidArchive to download content that requires authentication, such as private videos, age-restricted content, or membership-only media.
+
+### Cookies file path
+
+Provide a cookies.txt file in Netscape format:
+
+<Steps>
+  <Step title="Export cookies">
+    Use a browser extension to export cookies from your browser in Netscape format. Popular extensions include:
+    - "Get cookies.txt" for Chrome/Edge
+    - "cookies.txt" for Firefox
+  </Step>
+  
+  <Step title="Select cookies file">
+    Click the file icon next to "Cookies file path" and select your cookies.txt file.
+  </Step>
+  
+  <Step title="Save settings">
+    Click "Save settings" to apply. VidArchive will now use these cookies for downloads.
+  </Step>
+</Steps>
+
+<Warning>
+Cookies files contain authentication data for your accounts. Keep them secure and don't share them with others.
+</Warning>
+
+### Cookies from browser
+
+Alternatively, VidArchive can read cookies directly from supported browsers:
+
+**Supported browsers:**
+- Firefox
+- Chrome
+- Chromium
+- Edge
+- Opera
+- Safari
+- Brave
+- Vivaldi
+
+<Steps>
+  <Step title="Select browser">
+    Click the dropdown menu under "Cookies from browser" and choose your browser.
+  </Step>
+  
+  <Step title="Choose profile (optional)">
+    If your browser has multiple profiles, select the specific profile to use. Leave empty to use the default profile.
+  </Step>
+  
+  <Step title="Save settings">
+    Click "Save settings". VidArchive will read cookies from the selected browser when needed.
+  </Step>
+</Steps>
+
+<Note>
+The browser must be installed on your system for VidArchive to access its cookies. Close the browser before downloading to ensure cookies are up to date.
+</Note>
+
+### Cookies browser profile
+
+If you use multiple browser profiles:
+
+1. Select your browser from the "Cookies from browser" dropdown
+2. VidArchive will automatically detect available profiles
+3. Select the profile from the dropdown, or manually enter the profile name
+4. Click "Save settings" to apply
+
+<Tip>
+If the profile dropdown is empty, you can manually type the profile name in the input field.
+</Tip>
+
+### Resetting cookie options
+
+Click the reset icon next to any cookie setting to restore it to the default (empty) value.
+
+## yt-dlp management
+
+### Updating yt-dlp
+
+Keep yt-dlp updated to ensure compatibility with platforms:
+
+<Steps>
+  <Step title="Open update options">
+    Click "See options" in the "Update yt-dlp" section.
+  </Step>
+  
+  <Step title="Choose version">
+    Select from available versions:
+    - **Stable**: Recommended for most users (thoroughly tested releases)
+    - **Nightly**: Latest features and fixes (may have bugs)
+    - Specific version numbers
+  </Step>
+  
+  <Step title="Install update">
+    Click the install/update button to download and install the selected version.
+  </Step>
+  
+  <Step title="Wait for completion">
+    The app will download and install yt-dlp. This may take a minute.
+  </Step>
+</Steps>
+
+<Info>
+VidArchive automatically downloads yt-dlp on first launch if it's not already installed on your system.
+</Info>
+
+<Accordion title="When to update yt-dlp">
+  Update yt-dlp when:
+  - A platform changes its website structure
+  - Downloads from a specific platform start failing
+  - You want access to newly supported platforms
+  - Security updates are released
+  - New features are added that you want to use
+
+  Check for updates monthly or when you encounter download issues.
+</Accordion>
+
+## Application data
+
+### Clear metadata for all media
+
+Remove all cached metadata, thumbnails, and URL history:
+
+<Steps>
+  <Step title="Click clear metadata">
+    In the "App data" section, click "Clear Metadata".
+  </Step>
+  
+  <Step title="Confirm action">
+    A confirmation dialog will appear. Confirm that you want to delete all metadata.
+  </Step>
+  
+  <Step title="Data cleared">
+    All URL history, cached thumbnails, and media metadata are permanently deleted.
+  </Step>
+</Steps>
+
+<Warning>
+This action permanently deletes:
+- All URL history entries
+- Cached media information
+- Downloaded thumbnail images
+- Media metadata cache
+
+Your downloaded media files and download history are NOT affected. This action cannot be undone.
+</Warning>
+
+<Accordion title="When to clear metadata">
+  Clear metadata if:
+  - You want to free up disk space (thumbnails and cache can accumulate)
+  - You're troubleshooting issues with media information display
+  - You want to start fresh with a clean history
+  - You're concerned about privacy and want to remove viewing history
+
+  Consider exporting any important information from URL history before clearing.
+</Accordion>
+
+## Saving changes
+
+After modifying any settings:
+
+1. Changes are highlighted to indicate unsaved modifications
+2. Click the **"Save settings"** button that appears at the top of the settings page
+3. A confirmation message indicates successful save
+4. Changes take effect immediately
+
+<Note>
+Some settings (like concurrent downloads) apply to future downloads. Active downloads continue with their original settings.
+</Note>
+
+## Advanced configuration
+
+### Download template
+
+VidArchive supports custom filename templates for advanced users. This setting controls how downloaded files are named and organized.
+
+<Info>
+This is an advanced feature. The template uses yt-dlp's output template syntax. Incorrect templates may cause download errors.
+</Info>
+
+### FFmpeg path
+
+VidArchive automatically manages FFmpeg (required for merging video and audio streams). The FFmpeg path and version are displayed for informational purposes.
+
+<Tip>
+If you have a custom FFmpeg installation, ensure it's accessible in your system PATH. VidArchive will detect and use it automatically.
+</Tip>

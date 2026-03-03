@@ -1,0 +1,582 @@
+---
+title: Troubleshooting
+description: Solutions to common issues with VidArchive including missing dependencies, download failures, and connection errors
+---
+
+This guide helps you resolve common issues when using VidArchive.
+
+## Missing dependencies
+
+### yt-dlp not found
+
+**Symptom**: Error message stating yt-dlp is not installed or cannot be found.
+
+**Solution**:
+
+1. Check if yt-dlp is installed in the application data directory
+2. Try reinstalling yt-dlp through VidArchive's settings
+3. Verify the yt-dlp path in settings points to a valid executable
+
+<Accordion title="Manual installation">
+  If automatic installation fails:
+
+  1. Download yt-dlp from [github.com/yt-dlp/yt-dlp/releases](https://github.com/yt-dlp/yt-dlp/releases)
+  2. Place the executable in VidArchive's data directory
+  3. Update the path in settings
+
+  **Windows**: `%APPDATA%/VidArchive/yt-dlp/yt-dlp.exe`
+  **Linux**: `~/.config/VidArchive/yt-dlp/yt-dlp`
+</Accordion>
+
+### ffmpeg not found
+
+**Symptom**: Downloads fail with ffmpeg-related errors, or format merging doesn't work.
+
+**Solution**:
+
+```typescript
+// VidArchive checks for system ffmpeg first
+export async function confirmFfmpeg() {
+  const { ffmpegVersionInPc, ffmpegPathInPc } = await getFfmpegFromPc();
+  
+  if (ffmpegPathInPc && ffmpegVersionInPc) {
+    // Uses system ffmpeg
+    settings.set('ffmpegPath', FFMPEG_FOLDER_PATH);
+  }
+}
+```
+
+<Tabs>
+  <Tab title="Automatic fix">
+    1. Open VidArchive settings
+    2. Navigate to the dependencies section
+    3. Click **Download ffmpeg**
+    4. Wait for installation to complete
+    5. Restart VidArchive
+  </Tab>
+  <Tab title="Use system ffmpeg">
+    If you have ffmpeg installed:
+
+    1. Note your ffmpeg installation path
+    2. Open VidArchive settings
+    3. Set ffmpeg path to your installation
+    4. Restart VidArchive
+
+    Common paths:
+    - **Windows**: `C:\ffmpeg\bin`
+    - **Linux**: `/usr/bin`
+    - **macOS**: `/usr/local/bin`
+  </Tab>
+</Tabs>
+
+<Note>
+  VidArchive copies system ffmpeg to its own directory for consistent access across sessions.
+</Note>
+
+## Download failures
+
+### No video formats found
+
+**Symptom**: Error message "No video formats found" when trying to download.
+
+**Causes and solutions**:
+
+<Accordion title="Video is private or removed">
+  The video may no longer be available.
+
+  **Solution**: Verify the video is accessible in your browser while logged in.
+</Accordion>
+
+<Accordion title="Outdated yt-dlp version">
+  Video platforms frequently change their APIs.
+
+  **Solution**:
+  1. Update yt-dlp to the latest version
+  2. In VidArchive settings, click **Update yt-dlp**
+  3. Try the download again
+</Accordion>
+
+<Accordion title="Authentication required">
+  Some videos require login credentials.
+
+  **Solution**: Configure cookies in settings (see Cookie errors section below)
+</Accordion>
+
+### Connection errors
+
+VidArchive detects and reports connection issues:
+
+```typescript
+if (data.includes('HTTPSConnection')) {
+  mainWindow.webContents.send('yt-dlp:error', 'Connection Error');
+}
+
+if (data.includes('HTTPError')) {
+  mainWindow.webContents.send('yt-dlp:error', 'HTTP Error');
+}
+```
+
+**Symptoms**:
+- "Connection Error" or "HTTP Error" messages
+- Downloads timeout or hang
+- Unable to fetch video information
+
+**Solutions**:
+
+<Tabs>
+  <Tab title="Network issues">
+    1. Check your internet connection
+    2. Try accessing the video URL in a browser
+    3. Disable VPN or proxy temporarily
+    4. Check firewall settings
+  </Tab>
+  <Tab title="Rate limiting">
+    Video platforms may limit requests:
+
+    1. Wait a few minutes before retrying
+    2. Reduce concurrent downloads in settings
+    3. Consider using cookies for authentication
+  </Tab>
+  <Tab title="Geo-restrictions">
+    Some videos are region-locked:
+
+    1. Use a VPN to access content
+    2. Configure proxy settings in yt-dlp
+    3. Check if the video is available in your region
+  </Tab>
+</Tabs>
+
+### Download failed errors
+
+**Symptom**: Download starts but fails partway through.
+
+**Common causes**:
+
+1. **Expired URLs**: Video stream URLs expire after 6 hours
+2. **Disk space**: Insufficient storage space
+3. **Interrupted connection**: Network dropped during download
+4. **Permission errors**: Cannot write to download folder
+
+**Solutions**:
+
+<Accordion title="Retry failed downloads">
+  VidArchive tracks failed downloads:
+
+  ```typescript
+  async retryFailedDownload(downloadId: string) {
+    const failedDownload = await downloadHistoryOperations.getById(downloadId);
+    failedDownload!.download_status = 'downloading';
+    this.addDownload(failedDownload!);
+  }
+  ```
+
+  1. Open download history
+  2. Find the failed download
+  3. Click **Retry**
+  4. VidArchive will refetch URLs and restart
+</Accordion>
+
+<Accordion title="Check disk space">
+  1. Verify available space in download folder
+  2. Clear space if needed
+  3. Change download location in settings
+  4. Retry the download
+</Accordion>
+
+<Accordion title="Verify folder permissions">
+  **Windows**:
+  1. Right-click download folder
+  2. Properties → Security
+  3. Ensure your user has write permissions
+
+  **Linux/macOS**:
+  ```bash
+  chmod 755 /path/to/download/folder
+  ```
+</Accordion>
+
+### Live stream issues
+
+**Symptom**: Cannot download live streams or "live from start" option fails.
+
+**Error message**:
+```
+--live-from-start is passed, but there are no formats that can be downloaded from the start
+```
+
+**Solutions**:
+
+1. **Check stream type**: Not all live streams support "from start" downloads
+2. **Wait for VOD**: Download after the stream ends as a regular video
+3. **Use regular format**: Deselect "live from start" option
+4. **Update yt-dlp**: Ensure you have the latest version
+
+<Info>
+  VidArchive fetches special live formats when "live from start" is enabled:
+
+  ```typescript
+  export function getLiveFromStartFormatsCommand(url: string) {
+    return new YtdlpCommandBuilder(YTDLP_EXE_PATH)
+      .listFormats()
+      .url(url)
+      .liveFromStart();
+  }
+  ```
+</Info>
+
+## Cookie errors
+
+### Browser cookie extraction failed
+
+**Symptom**: "Could not get cookies from the selected browser. Try a different browser"
+
+VidArchive attempts to extract cookies:
+
+```typescript
+if (data.includes('DPAPI') || data.includes('Could not copy Chrome cookie database')) {
+  mainWindow.webContents.send(
+    'yt-dlp:error',
+    'Could not get cookies from the selected browser. Try a different browser'
+  );
+}
+```
+
+**Common causes**:
+
+<Accordion title="Browser is running">
+  **Solution**: Close the browser completely before attempting download:
+
+  1. Exit the browser (close all windows)
+  2. Check Task Manager/Activity Monitor for lingering processes
+  3. End any browser processes
+  4. Try the download again
+</Accordion>
+
+<Accordion title="Encrypted cookie database (Windows DPAPI)">
+  Windows uses DPAPI to encrypt cookies, which may fail.
+
+  **Solution**:
+  1. Try a different browser (Firefox, Edge, etc.)
+  2. Use cookie file export method instead
+  3. Run VidArchive as administrator (not recommended)
+</Accordion>
+
+<Accordion title="Browser profile not found">
+  **Solution**:
+  1. Verify the correct browser is selected
+  2. Clear the profile name field (use default profile)
+  3. Or specify the exact profile name
+</Accordion>
+
+### Using cookie files
+
+More reliable than browser extraction:
+
+1. **Export cookies** using a browser extension:
+   - Chrome/Edge: [Get cookies.txt](https://chrome.google.com/webstore/detail/get-cookiestxt/bgaddhkoddajcdgocldbbfleckgcbcid)
+   - Firefox: [cookies.txt](https://addons.mozilla.org/en-US/firefox/addon/cookies-txt/)
+
+2. **Configure in VidArchive**:
+   - Open settings
+   - Navigate to cookies section
+   - Select "Cookie file"
+   - Browse to exported cookies.txt file
+
+3. **Try download again**
+
+```typescript
+if (settings.get('cookiesFilePath').length > 0) {
+  if (pathExistsSync(settings.get('cookiesFilePath'))) {
+    builder.cookies(settings.get('cookiesFilePath'));
+  }
+}
+```
+
+<Warning>
+  Cookie files contain authentication tokens. Keep them secure and never share them.
+</Warning>
+
+## Performance issues
+
+### Slow downloads
+
+**Symptoms**:
+- Downloads proceed slower than expected
+- Speed varies dramatically
+- Other applications experience lag
+
+**Solutions**:
+
+<Accordion title="Reduce concurrent downloads">
+  VidArchive allows configuring concurrent download limits:
+
+  ```typescript
+  const maxAllowedConcurrentDownloads = settings.get('maxConcurrentDownloads');
+  // Default: 2, Maximum: 5
+  ```
+
+  1. Open settings
+  2. Find "Max concurrent downloads"
+  3. Reduce to 1 or 2
+  4. Restart VidArchive
+</Accordion>
+
+<Accordion title="Network bottleneck">
+  1. Close bandwidth-intensive applications
+  2. Check for background updates
+  3. Test internet speed
+  4. Contact ISP if speed is consistently poor
+</Accordion>
+
+<Accordion title="Platform throttling">
+  Video platforms may limit download speeds:
+
+  1. This is normal for some platforms
+  2. Downloads will complete, just slower
+  3. Consider downloading during off-peak hours
+</Accordion>
+
+### High CPU usage
+
+**Symptom**: VidArchive uses significant CPU during downloads.
+
+**Causes**:
+
+1. **Format conversion**: Recoding video uses CPU-intensive encoding
+2. **Multiple downloads**: Concurrent operations multiply CPU usage
+3. **Metadata embedding**: Processing large videos requires computation
+
+**Solutions**:
+
+<Tabs>
+  <Tab title="Avoid recoding">
+    Only recode when necessary:
+
+    1. Disable "Recode video" option if enabled
+    2. Use native format when possible
+    3. Download in format that doesn't require conversion
+
+    ```typescript
+    // Recoding is CPU-intensive
+    if (extraOptions.recodeOutput) {
+      builder.recodeVideo(extraOptions.recodeOutput);
+    }
+    ```
+  </Tab>
+  <Tab title="Reduce concurrent downloads">
+    Lower the concurrent download limit:
+
+    1. Settings → Max concurrent downloads
+    2. Set to 1 for single-core systems
+    3. Set to 2 for multi-core systems
+  </Tab>
+  <Tab title="Disable unnecessary options">
+    Some features increase processing:
+
+    - Force keyframes at cuts (re-encodes)
+    - Thumbnail embedding
+    - Comment downloading
+
+    Disable features you don't need.
+  </Tab>
+</Tabs>
+
+### Memory issues
+
+**Symptom**: VidArchive crashes or system runs out of memory.
+
+**Solutions**:
+
+1. **Download smaller files**: Split large downloads into segments
+2. **Close other applications**: Free up system memory
+3. **Reduce concurrent downloads**: Limit to 1 download at a time
+4. **Check for memory leaks**: Restart VidArchive periodically
+
+## Database issues
+
+### Corrupted database
+
+**Symptom**: VidArchive fails to start or crashes when accessing history.
+
+**Error in logs**:
+```
+Database initialization failed: database disk image is malformed
+```
+
+**Solutions**:
+
+<Accordion title="Restore from backup">
+  If you have a backup:
+
+  1. Close VidArchive
+  2. Navigate to data directory
+  3. Replace database file with backup
+  4. Restart VidArchive
+</Accordion>
+
+<Accordion title="Reset database">
+  If no backup exists:
+
+  1. Close VidArchive
+  2. Navigate to data directory:
+     - Windows: `%APPDATA%/VidArchive/`
+     - Linux: `~/.config/VidArchive/`
+     - macOS: `~/Library/Application Support/VidArchive/`
+  3. Delete or rename the database file
+  4. Restart VidArchive (will create new database)
+
+  <Warning>
+    This deletes all history. Export important data first if possible.
+  </Warning>
+</Accordion>
+
+### Migration failures
+
+**Symptom**: Error message about database migrations failing.
+
+```typescript
+export async function migrateDb(db: BetterSQLite3Database) {
+  try {
+    migrate(db, { migrationsFolder: MIGRATIONS_FOLDER });
+  } catch (error: unknown) {
+    logger.error('Database migrations failed: ' + String(error));
+    throw new Error(error.message);
+  }
+}
+```
+
+**Solution**:
+
+1. **Backup current database**
+2. **Update VidArchive** to latest version
+3. **Restart application**
+4. If issue persists, reset database
+
+## Application crashes
+
+### Crash on startup
+
+**Possible causes**:
+- Corrupted settings file
+- Missing dependencies
+- Database issues
+
+**Solutions**:
+
+1. **Check logs**: Find error messages in application logs
+2. **Reset settings**: Delete settings file from data directory
+3. **Reinstall**: Uninstall and reinstall VidArchive
+4. **Check permissions**: Ensure data directory is writable
+
+### Crash during download
+
+**Symptom**: Application crashes while downloading.
+
+**Common causes**:
+
+1. **Out of memory**: Large file processing
+2. **yt-dlp error**: Unexpected output format
+3. **File system error**: Cannot write to disk
+
+**Solutions**:
+
+<Accordion title="Check logs">
+  Examine the logs for error messages:
+
+  1. Locate log file in data directory
+  2. Look for errors around crash time
+  3. Common errors:
+     - `ENOMEM`: Out of memory
+     - `ENOSPC`: Out of disk space
+     - `EACCES`: Permission denied
+</Accordion>
+
+<Accordion title="Update dependencies">
+  1. Update yt-dlp to latest version
+  2. Update ffmpeg if using custom installation
+  3. Restart VidArchive
+  4. Try download again
+</Accordion>
+
+## Platform-specific issues
+
+### YouTube
+
+<Accordion title="Age-restricted videos">
+  **Problem**: Cannot download age-restricted content
+
+  **Solution**: Configure cookies from logged-in YouTube account
+</Accordion>
+
+<Accordion title="Premium content">
+  **Problem**: Premium-only videos fail to download
+
+  **Solution**: Ensure cookies from YouTube Premium account are configured
+</Accordion>
+
+### Instagram
+
+<Accordion title="Private accounts">
+  **Problem**: Cannot download from private accounts
+
+  **Solution**: Use cookies from logged-in Instagram account that follows the private account
+</Accordion>
+
+### Twitter/X
+
+<Accordion title="Rate limiting">
+  **Problem**: Frequent "Rate limit exceeded" errors
+
+  **Solution**: 
+  - Wait 15 minutes between requests
+  - Use cookies from logged-in account
+  - Update yt-dlp to latest version
+</Accordion>
+
+### TikTok
+
+<Accordion title="Watermarked videos">
+  **Problem**: Downloads include TikTok watermark
+
+  **Solution**: This is expected behavior. TikTok embeds watermarks in video streams.
+</Accordion>
+
+## Getting help
+
+### Collecting diagnostic information
+
+When reporting issues:
+
+1. **Check logs**: Locate and review log files
+2. **Note yt-dlp version**: Settings → About
+3. **Note ffmpeg version**: Settings → About
+4. **Describe the problem**: Exact error messages and steps to reproduce
+5. **Test video URL**: Provide a video URL that demonstrates the issue
+
+### Log file locations
+
+- **Windows**: `%APPDATA%/VidArchive/logs/`
+- **Linux**: `~/.config/VidArchive/logs/`
+- **macOS**: `~/Library/Application Support/VidArchive/logs/`
+
+<Tip>
+  Enable verbose logging in settings for more detailed diagnostic information.
+</Tip>
+
+### Reporting bugs
+
+Submit bug reports on GitHub:
+
+1. Visit [github.com/darshan03s/vid-archive/issues](https://github.com/darshan03s/vid-archive/issues)
+2. Search for existing similar issues
+3. Create new issue with:
+   - Operating system and version
+   - VidArchive version
+   - yt-dlp and ffmpeg versions
+   - Complete error message
+   - Steps to reproduce
+   - Relevant log excerpts
+
+<Note>
+  Remove any personal information from logs before sharing (URLs, file paths, usernames).
+</Note>

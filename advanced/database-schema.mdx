@@ -1,0 +1,480 @@
+---
+title: Database schema
+description: Explore VidArchive's SQLite database schema including url_history, download_history, and extraCommandsHistory tables
+---
+
+VidArchive uses [SQLite](https://www.sqlite.org/) for local data storage, managed through [Drizzle ORM](https://orm.drizzle.team/). The database stores URL history, download records, and custom command history.
+
+## Database location
+
+The SQLite database is stored in the application's data directory:
+- **Windows**: `%APPDATA%/VidArchive/`
+- **Linux**: `~/.config/VidArchive/`
+- **macOS**: `~/Library/Application Support/VidArchive/`
+
+## Schema overview
+
+The database consists of three main tables:
+
+1. **url_history** - Stores metadata for URLs that have been looked up
+2. **download_history** - Records all download attempts and their status
+3. **extraCommandsHistory** - Maintains history of custom yt-dlp commands
+
+## url_history table
+
+Stores video metadata for URLs that users have searched or viewed.
+
+### Schema definition
+
+```typescript
+export const urlHistory = sqliteTable('url_history', {
+  id: text('id').primaryKey().notNull(),
+  title: text('title').notNull(),
+  url: text('url').notNull(),
+  source: text('source').$type<Source>().notNull(),
+  thumbnail: text('thumbnail').notNull(),
+  thumbnail_local: text('thumbnail_local').notNull(),
+  uploader: text('uploader').notNull(),
+  uploader_url: text('uploader_url').notNull(),
+  duration: text('duration').notNull(),
+  created_at: text('created_at').notNull(),
+  added_at: text('added_at')
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull()
+});
+```
+
+### Field descriptions
+
+<Accordion title="id (TEXT, PRIMARY KEY)">
+  Unique identifier for the video, typically the video ID from the platform (e.g., YouTube video ID).
+
+  Example: `dQw4w9WgXcQ`
+</Accordion>
+
+<Accordion title="title (TEXT)">
+  The full title of the video as reported by the platform.
+
+  Example: `Rick Astley - Never Gonna Give You Up (Official Video)`
+</Accordion>
+
+<Accordion title="url (TEXT)">
+  The original URL that was searched or viewed.
+
+  Example: `https://www.youtube.com/watch?v=dQw4w9WgXcQ`
+</Accordion>
+
+<Accordion title="source (TEXT)">
+  The platform or source type. Must be one of the defined Source types:
+
+  - `youtube-video`
+  - `youtube-playlist`
+  - `youtube-music`
+  - `youtube-music-playlist`
+  - `twitter-video`
+  - `instagram-video`
+  - `reddit-video`
+  - `dailymotion-video`
+  - `pinterest-video`
+  - `rumble-video`
+  - `tiktok-video`
+</Accordion>
+
+<Accordion title="thumbnail (TEXT)">
+  The original remote URL of the video thumbnail.
+
+  Example: `https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg`
+</Accordion>
+
+<Accordion title="thumbnail_local (TEXT)">
+  Local file path where the thumbnail is cached.
+
+  Example: `/data/media/youtube-video/dQw4w9WgXcQ/title.jpg`
+</Accordion>
+
+<Accordion title="uploader (TEXT)">
+  The name of the channel or user who uploaded the video.
+
+  Example: `Rick Astley`
+</Accordion>
+
+<Accordion title="uploader_url (TEXT)">
+  The URL of the uploader's channel or profile.
+
+  Example: `https://www.youtube.com/@RickAstley`
+</Accordion>
+
+<Accordion title="duration (TEXT)">
+  Human-readable duration string.
+
+  Example: `03:33` or `1:45:30`
+</Accordion>
+
+<Accordion title="created_at (TEXT)">
+  ISO 8601 timestamp of when the video was uploaded to the platform.
+
+  Example: `2009-10-25T06:57:33Z`
+</Accordion>
+
+<Accordion title="added_at (TEXT, DEFAULT CURRENT_TIMESTAMP)">
+  ISO 8601 timestamp of when this record was added to the database.
+
+  Example: `2026-03-03T10:30:45Z`
+</Accordion>
+
+### Example record
+
+```json
+{
+  "id": "dQw4w9WgXcQ",
+  "title": "Rick Astley - Never Gonna Give You Up",
+  "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+  "source": "youtube-video",
+  "thumbnail": "https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
+  "thumbnail_local": "/data/media/youtube-video/dQw4w9WgXcQ/title.jpg",
+  "uploader": "Rick Astley",
+  "uploader_url": "https://www.youtube.com/@RickAstley",
+  "duration": "03:33",
+  "created_at": "2009-10-25T06:57:33Z",
+  "added_at": "2026-03-03T10:30:45Z"
+}
+```
+
+## download_history table
+
+Records all download attempts, including active, completed, failed, paused, and waiting downloads.
+
+### Schema definition
+
+```typescript
+export const downloadHistory = sqliteTable('download_history', {
+  id: text('id').primaryKey().notNull(),
+  title: text('title').notNull(),
+  url: text('url').notNull(),
+  source: text('source').$type<Source>().notNull(),
+  thumbnail: text('thumbnail').notNull(),
+  thumbnail_local: text('thumbnail_local').notNull(),
+  uploader: text('uploader').notNull(),
+  uploader_url: text('uploader_url').notNull(),
+  start_time: text('start_time').notNull(),
+  end_time: text('end_time').notNull(),
+  duration: text('duration').notNull(),
+  format: text('format').notNull(),
+  command: text('command').notNull(),
+  complete_output: text('complete_output').notNull(),
+  download_path: text('download_path').notNull(),
+  download_progress: real('download_progress').notNull(),
+  download_progress_string: text('download_progress_string').notNull(),
+  added_at: text('added_at')
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  download_completed_at: text('download_completed_at').notNull(),
+  download_status: text('download_status', {
+    enum: downloadStatusEnum
+  }).notNull(),
+  download_command_base: text('download_command_base').notNull(),
+  download_command_args: text('download_command_args').notNull()
+});
+```
+
+### Download status enum
+
+```typescript
+export const downloadStatusEnum = [
+  'downloading',
+  'completed',
+  'failed',
+  'paused',
+  'waiting'
+] as const;
+```
+
+### Field descriptions
+
+<Accordion title="id (TEXT, PRIMARY KEY)">
+  Unique identifier for this download attempt. Generated using UUID or similar.
+
+  Example: `550e8400-e29b-41d4-a716-446655440000`
+</Accordion>
+
+<Accordion title="title, url, source, thumbnail, thumbnail_local, uploader, uploader_url, duration">
+  These fields match the corresponding fields in `url_history` table. They are duplicated here to maintain a complete record even if the URL history entry is deleted.
+</Accordion>
+
+<Accordion title="start_time (TEXT)">
+  Time offset where the download segment starts. Empty string if downloading from beginning.
+
+  Example: `00:05:30` or `` (empty)
+</Accordion>
+
+<Accordion title="end_time (TEXT)">
+  Time offset where the download segment ends. Empty string if downloading to end.
+
+  Example: `00:10:45` or `` (empty)
+</Accordion>
+
+<Accordion title="format (TEXT)">
+  Human-readable format description including resolution and format ID.
+
+  Example: `1080p - 137` or `1920x1080 - 137+140`
+</Accordion>
+
+<Accordion title="command (TEXT)">
+  Complete yt-dlp command that was executed, including all arguments.
+
+  Example:
+  ```
+  yt-dlp --format 137+ba --ffmpeg-location /path/to/ffmpeg 
+    --output "/downloads/video.%(ext)s" https://youtube.com/watch?v=...
+  ```
+</Accordion>
+
+<Accordion title="complete_output (TEXT)">
+  Full stdout and stderr output from the yt-dlp process. Used for debugging and showing detailed progress.
+
+  Contains all log lines, progress updates, and error messages.
+</Accordion>
+
+<Accordion title="download_path (TEXT)">
+  Absolute file path where the downloaded file is saved (without extension during download, with extension after completion).
+
+  Example: `/home/user/Downloads/video_title [1080p] [137]`
+</Accordion>
+
+<Accordion title="download_progress (REAL)">
+  Numeric progress percentage from 0 to 100.
+
+  Example: `67.5` (representing 67.5% complete)
+</Accordion>
+
+<Accordion title="download_progress_string (TEXT)">
+  Human-readable progress message from yt-dlp.
+
+  Example: `[download] 67.5% of 125.50MiB at 2.34MiB/s ETA 00:24`
+</Accordion>
+
+<Accordion title="added_at (TEXT, DEFAULT CURRENT_TIMESTAMP)">
+  ISO 8601 timestamp when the download was added to the queue.
+
+  Example: `2026-03-03T10:35:12Z`
+</Accordion>
+
+<Accordion title="download_completed_at (TEXT)">
+  ISO 8601 timestamp when the download finished (successfully or not). Empty during active downloads.
+
+  Example: `2026-03-03T10:45:30Z` or `` (empty)
+</Accordion>
+
+<Accordion title="download_status (TEXT, ENUM)">
+  Current status of the download. Must be one of:
+  - `downloading` - Currently being downloaded
+  - `completed` - Successfully finished
+  - `failed` - Failed with error
+  - `paused` - User paused the download
+  - `waiting` - In queue, not started yet
+</Accordion>
+
+<Accordion title="download_command_base (TEXT)">
+  Base command executable path (yt-dlp path).
+
+  Example: `/app/bin/yt-dlp` or `C:\\Program Files\\VidArchive\\yt-dlp.exe`
+</Accordion>
+
+<Accordion title="download_command_args (TEXT)">
+  JSON-stringified array of command arguments. Used for resuming downloads.
+
+  Example:
+  ```json
+  ["--format", "137+ba", "--ffmpeg-location", "/usr/bin/ffmpeg", "--output", "/downloads/video.%(ext)s", "https://youtube.com/watch?v=..."]
+  ```
+</Accordion>
+
+### Example record
+
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "title": "Example Video Title",
+  "url": "https://www.youtube.com/watch?v=example",
+  "source": "youtube-video",
+  "thumbnail": "https://i.ytimg.com/vi/example/maxresdefault.jpg",
+  "thumbnail_local": "/data/media/youtube-video/example/title.jpg",
+  "uploader": "Channel Name",
+  "uploader_url": "https://www.youtube.com/@channel",
+  "start_time": "",
+  "end_time": "",
+  "duration": "10:30",
+  "format": "1080p - 137+140",
+  "command": "yt-dlp --format 137+ba ...",
+  "complete_output": "[download] Downloading video...\n[download] 100% complete",
+  "download_path": "/home/user/Downloads/Example_Video_Title_[1080p]_[137].mp4",
+  "download_progress": 100,
+  "download_progress_string": "Download Completed",
+  "added_at": "2026-03-03T10:35:12Z",
+  "download_completed_at": "2026-03-03T10:45:30Z",
+  "download_status": "completed",
+  "download_command_base": "/app/bin/yt-dlp",
+  "download_command_args": "[\"--format\", \"137+ba\", ...]"
+}
+```
+
+## extraCommandsHistory table
+
+Stores history of custom yt-dlp commands entered by the user.
+
+### Schema definition
+
+```typescript
+export const extraCommandsHistory = sqliteTable('extra_commands_history', {
+  id: text('id').primaryKey().notNull(),
+  command: text('command').notNull(),
+  created_at: text('created_at')
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull()
+});
+```
+
+### Field descriptions
+
+<Accordion title="id (TEXT, PRIMARY KEY)">
+  Unique identifier for this command history entry.
+
+  Example: `cmd-1234567890`
+</Accordion>
+
+<Accordion title="command (TEXT)">
+  The custom yt-dlp command string entered by the user.
+
+  Example: `--extract-audio --audio-format mp3`
+</Accordion>
+
+<Accordion title="created_at (TEXT, DEFAULT CURRENT_TIMESTAMP)">
+  ISO 8601 timestamp when this command was used.
+
+  Example: `2026-03-03T10:50:00Z`
+</Accordion>
+
+### Example record
+
+```json
+{
+  "id": "cmd-1709471400",
+  "command": "--extract-audio --audio-format mp3 --audio-quality 320K",
+  "created_at": "2026-03-03T10:50:00Z"
+}
+```
+
+<Note>
+  This table enables autocomplete and quick access to previously used custom commands.
+</Note>
+
+## Database operations
+
+VidArchive uses Drizzle ORM for type-safe database operations:
+
+### Common queries
+
+<Tabs>
+  <Tab title="URL history">
+    ```typescript
+    // Get all URL history
+    const allUrls = await db.select().from(urlHistory);
+
+    // Get by ID
+    const url = await db.select()
+      .from(urlHistory)
+      .where(eq(urlHistory.id, videoId));
+
+    // Delete by ID
+    await db.delete(urlHistory)
+      .where(eq(urlHistory.id, videoId));
+    ```
+  </Tab>
+  <Tab title="Download history">
+    ```typescript
+    // Get completed downloads
+    const completed = await db.select()
+      .from(downloadHistory)
+      .where(eq(downloadHistory.download_status, 'completed'));
+
+    // Get failed downloads
+    const failed = await db.select()
+      .from(downloadHistory)
+      .where(eq(downloadHistory.download_status, 'failed'))
+      .orderBy(asc(downloadHistory.download_completed_at));
+
+    // Get paused downloads
+    const paused = await db.select()
+      .from(downloadHistory)
+      .where(eq(downloadHistory.download_status, 'paused'))
+      .orderBy(desc(downloadHistory.download_completed_at));
+    ```
+  </Tab>
+  <Tab title="Extra commands">
+    ```typescript
+    // Get recent commands
+    const recent = await db.select()
+      .from(extraCommandsHistory)
+      .orderBy(desc(extraCommandsHistory.created_at))
+      .limit(10);
+
+    // Add new command
+    await db.insert(extraCommandsHistory)
+      .values({
+        id: generateId(),
+        command: userCommand,
+        created_at: new Date().toISOString()
+      });
+    ```
+  </Tab>
+</Tabs>
+
+## Data retention
+
+VidArchive does not automatically delete old records. Users can manually clear history:
+
+- **URL history**: Can be cleared individually or all at once
+- **Download history**: Preserved for reference; can be cleared by user
+- **Extra commands**: Grows over time; can be manually pruned
+
+<Tip>
+  Large databases may impact performance. Consider periodically clearing old history entries.
+</Tip>
+
+## Database migrations
+
+VidArchive uses Drizzle Kit for schema migrations:
+
+```typescript
+export async function migrateDb(db: BetterSQLite3Database) {
+  try {
+    migrate(db, { migrationsFolder: MIGRATIONS_FOLDER });
+    logger.info('Database migrated successfully');
+  } catch (error: unknown) {
+    logger.error('Database migrations failed: ' + String(error));
+    throw new Error(error.message);
+  }
+}
+```
+
+<Info>
+  Migrations are automatically applied when the application starts, ensuring the database schema is always up to date.
+</Info>
+
+## Backup and restore
+
+The SQLite database can be backed up by copying the database file:
+
+1. Close VidArchive
+2. Copy the database file from the data directory
+3. Store in a safe location
+
+To restore:
+
+1. Close VidArchive
+2. Replace the database file with the backup
+3. Restart VidArchive
+
+<Warning>
+  Always close VidArchive before manually copying database files to prevent corruption.
+</Warning>

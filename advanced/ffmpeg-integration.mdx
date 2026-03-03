@@ -1,0 +1,399 @@
+---
+title: ffmpeg integration
+description: Understand how VidArchive uses ffmpeg for format conversion, audio merging, and media processing
+---
+
+VidArchive uses [ffmpeg](https://ffmpeg.org) for media processing tasks including format conversion, audio/video merging, and metadata embedding. While yt-dlp handles the downloading, ffmpeg performs the heavy lifting for media manipulation.
+
+## Installation and setup
+
+VidArchive can automatically install ffmpeg or use an existing system installation.
+
+### Automatic installation
+
+The application downloads and extracts ffmpeg when needed:
+
+```typescript
+export async function downloadFfmpeg() {
+  const settings = Settings.getInstance();
+
+  logger.info('Downloading ffmpeg...');
+  const output7zPath = await downloadFfmpeg7z(DATA_DIR);
+
+  // Extract using 7-Zip
+  SevenZip.unpack(output7zPath, DATA_DIR);
+  await deleteFile(output7zPath);
+
+  const { ffmpegExePath, ffmpegBinPath } = getFfmpegExeAndBinPath();
+  const ffmpegVersionInPc = await getFfmpegVersionFromPc(ffmpegExePath);
+
+  settings.set('ffmpegPath', ffmpegBinPath);
+  settings.set('ffmpegVersion', ffmpegVersionInPc);
+
+  return { ffmpegVersionInPc, ffmpegPathInPc: ffmpegBinPath };
+}
+```
+
+<Info>
+  ffmpeg is downloaded as a 7z archive and extracted to the application's data directory.
+</Info>
+
+### Platform-specific paths
+
+ffmpeg installation paths vary by platform:
+
+<Tabs>
+  <Tab title="Windows">
+    ```typescript
+    let ffmpegExePath = path.join(DATA_DIR, 'ffmpeg-win', 'bin', 'ffmpeg.exe');
+    let ffmpegBinPath = path.join(DATA_DIR, 'ffmpeg-win', 'bin');
+    ```
+
+    Windows installation includes:
+    - `ffmpeg.exe`
+    - `ffplay.exe`
+    - `ffprobe.exe`
+  </Tab>
+  <Tab title="Linux">
+    ```typescript
+    let ffmpegExePath = path.join(DATA_DIR, 'ffmpeg-linux', 'bin', 'ffmpeg');
+    let ffmpegBinPath = path.join(DATA_DIR, 'ffmpeg-linux', 'bin');
+    ```
+
+    Linux installation includes:
+    - `ffmpeg`
+    - `ffplay`
+    - `ffprobe`
+  </Tab>
+</Tabs>
+
+### System installation detection
+
+VidArchive can detect and use existing ffmpeg installations:
+
+```typescript
+export async function confirmFfmpeg() {
+  const settings = Settings.getInstance();
+
+  logger.info('Checking ffmpeg in PC...');
+  const { ffmpegVersionInPc, ffmpegPathInPc } = await getFfmpegFromPc();
+
+  if (ffmpegPathInPc && ffmpegVersionInPc) {
+    await copyFfmpegFromPc(ffmpegPathInPc);
+    settings.set('ffmpegPath', FFMPEG_FOLDER_PATH);
+    settings.set('ffmpegVersion', ffmpegVersionInPc);
+  }
+
+  return { ffmpegVersionInPc, ffmpegPathInPc };
+}
+```
+
+<Note>
+  If a system ffmpeg is found, VidArchive copies it to its own directory for consistent access.
+</Note>
+
+## Integration with yt-dlp
+
+VidArchive configures yt-dlp to use the installed ffmpeg binary:
+
+```typescript
+let builder = new YtdlpCommandBuilder(YTDLP_EXE_PATH)
+  .ffmpegLocation(settings.get('ffmpegPath'));
+```
+
+This ensures yt-dlp can perform post-processing tasks that require ffmpeg.
+
+## Format conversion
+
+ffmpeg handles format conversion through yt-dlp's merge and recode options.
+
+### Merge output format
+
+Specify the container format for merged audio and video streams:
+
+```typescript
+if (extraOptions.mergeOutputFormat) {
+  builder.mergeOutputFormat(`${extraOptions.mergeOutputFormat}/mkv`);
+}
+```
+
+<Accordion title="Supported merge formats">
+  Common output formats supported by ffmpeg:
+  - **MP4** - H.264 video with AAC audio
+  - **MKV** - Matroska container (supports all codecs)
+  - **WebM** - VP8/VP9 video with Opus/Vorbis audio
+  - **AVI** - Legacy format with broad compatibility
+</Accordion>
+
+The `/mkv` fallback ensures that if the requested format doesn't support the codecs, MKV is used as a universal container.
+
+### Recode video
+
+Convert downloaded video to a different codec:
+
+```typescript
+if (extraOptions.recodeOutput) {
+  builder.recodeVideo(extraOptions.recodeOutput);
+}
+```
+
+<Warning>
+  Recoding is CPU-intensive and significantly increases processing time. Only use when necessary for compatibility.
+</Warning>
+
+## Audio and video merging
+
+Many video platforms separate audio and video streams. ffmpeg merges them seamlessly.
+
+### Automatic audio merging
+
+VidArchive automatically adds best audio when the selected format lacks it:
+
+```typescript
+const hasAudio = selectedFormat.acodec && selectedFormat.acodec !== 'none';
+
+if (hasAudio) {
+  // Format already has audio
+  builder.format(formatId);
+} else {
+  // No audio → append bestaudio
+  builder.format(formatId + '+ba');
+}
+```
+
+### Merge process
+
+When formats are combined:
+
+1. yt-dlp downloads video and audio streams separately
+2. ffmpeg merges them into a single file
+3. Temporary files are cleaned up automatically
+4. Output file is saved to the user's selected location
+
+<Tip>
+  The `+ba` format selector tells yt-dlp to merge with the best available audio stream using ffmpeg.
+</Tip>
+
+## Metadata embedding
+
+ffmpeg embeds metadata and media into the final file.
+
+### Thumbnail embedding
+
+```typescript
+if (extraOptions.embedThumbnail) {
+  builder.embedThumbnail();
+}
+```
+
+ffmpeg extracts a video frame or downloads the thumbnail and embeds it as album art.
+
+### Chapter markers
+
+```typescript
+if (extraOptions.embedChapters) {
+  builder.embedChapters();
+}
+```
+
+Chapter information is written to the container's metadata, allowing chapter navigation in media players.
+
+### Subtitle embedding
+
+```typescript
+if (extraOptions.embedSubs) {
+  builder.embedSubs();
+}
+```
+
+Subtitles are embedded as tracks in the container, accessible in compatible players.
+
+### Metadata fields
+
+```typescript
+if (extraOptions.embedMetadata) {
+  builder.embedMetadata();
+}
+```
+
+<Accordion title="Embedded metadata fields">
+  ffmpeg embeds comprehensive metadata:
+  - **Title** - Video title
+  - **Artist** - Uploader/channel name
+  - **Album** - Playlist name (if applicable)
+  - **Date** - Upload date
+  - **Description** - Video description
+  - **Comment** - Additional metadata
+</Accordion>
+
+## Output formats
+
+VidArchive supports various output formats through ffmpeg:
+
+### Video formats
+
+<Tabs>
+  <Tab title="MP4">
+    **Best for**: Compatibility and streaming
+
+    - Container: MP4
+    - Video codecs: H.264, H.265
+    - Audio codecs: AAC, MP3
+    - Features: Metadata, chapters, subtitles
+    - Limitations: Some codecs not supported
+  </Tab>
+  <Tab title="MKV">
+    **Best for**: Archival and flexibility
+
+    - Container: Matroska
+    - Video codecs: All supported
+    - Audio codecs: All supported
+    - Features: Unlimited tracks, full metadata
+    - Limitations: Larger file size
+  </Tab>
+  <Tab title="WebM">
+    **Best for**: Web streaming
+
+    - Container: WebM
+    - Video codecs: VP8, VP9, AV1
+    - Audio codecs: Opus, Vorbis
+    - Features: Open format, good compression
+    - Limitations: Limited player support
+  </Tab>
+</Tabs>
+
+### Audio formats
+
+For audio-only downloads:
+
+- **MP3** - Universal compatibility
+- **AAC** - Better quality at same bitrate
+- **Opus** - Best compression and quality
+- **FLAC** - Lossless audio
+- **M4A** - AAC in MP4 container
+
+## Time-based processing
+
+ffmpeg handles precise time-based editing:
+
+### Download sections
+
+```typescript
+if (downloadSections.startTime && downloadSections.endTime) {
+  builder.downloadSections({
+    start: downloadSections.startTime,
+    end: downloadSections.endTime
+  });
+}
+```
+
+ffmpeg extracts only the specified time range, reducing file size and processing time.
+
+### Force keyframes at cuts
+
+```typescript
+if (downloadSections.forceKeyframesAtCuts) {
+  builder.forceKeyframesAtCuts();
+}
+```
+
+<Accordion title="Why force keyframes?">
+  Video codecs use keyframes (I-frames) and predicted frames (P/B-frames). When cutting at arbitrary times:
+  - Without keyframes: Playback may start incorrectly or show artifacts
+  - With forced keyframes: ffmpeg re-encodes at cut points for clean starts
+
+  This increases processing time but ensures perfect playback.
+</Accordion>
+
+## Progress tracking
+
+VidArchive monitors ffmpeg progress through yt-dlp output:
+
+```typescript
+child.stdout.on('data', (data: string) => {
+  const lines = getLines(data);
+  for (const line of lines) {
+    downloadingItem.download_progress_string = line;
+    downloadingItem.download_progress = 
+      this.getProgressPercent(line) ?? downloadingItem.download_progress;
+    
+    mainWindow.webContents.send(`download-progress:${downloadingItem.id}`, {
+      progressString: line,
+      progressPercentage: this.getProgressPercent(line)
+    });
+  }
+});
+```
+
+Progress is extracted from output lines containing percentage indicators.
+
+## Version management
+
+VidArchive stores ffmpeg version information:
+
+```typescript
+settings.set('ffmpegPath', ffmpegBinPath);
+settings.set('ffmpegVersion', ffmpegVersionInPc);
+```
+
+This allows the application to:
+- Display version in settings
+- Check for feature compatibility
+- Troubleshoot issues related to specific versions
+
+<Info>
+  ffmpeg version is retrieved by running `ffmpeg -version` and parsing the output.
+</Info>
+
+## Error handling
+
+ffmpeg errors are captured and reported:
+
+```typescript
+try {
+  await downloadFfmpeg();
+} catch (err) {
+  logger.error('Failed to download ffmpeg:', err);
+  return { ffmpegVersionInPc: null, ffmpegPathInPc: null };
+}
+```
+
+Common issues:
+- Download failures
+- Extraction errors
+- Permission problems
+- Codec incompatibilities
+
+<Warning>
+  If ffmpeg is not found, downloads requiring format conversion or merging will fail.
+</Warning>
+
+## Performance considerations
+
+ffmpeg operations can be resource-intensive:
+
+### CPU usage
+
+- **Merging**: Low CPU (stream copy)
+- **Recoding**: High CPU (re-encoding)
+- **Embedding**: Minimal CPU (metadata only)
+
+### Disk usage
+
+Temporary files are created during processing:
+- Separate audio and video files
+- Intermediate conversion files
+- Subtitle files
+
+These are automatically cleaned up after successful completion.
+
+### Memory usage
+
+ffmpeg streaming operations minimize memory usage, but:
+- Large files may require more memory
+- Multiple concurrent operations increase usage
+- Subtitle processing can be memory-intensive
+
+<Tip>
+  VidArchive limits concurrent downloads to prevent resource exhaustion. The default is 2 concurrent downloads, configurable up to 5.
+</Tip>

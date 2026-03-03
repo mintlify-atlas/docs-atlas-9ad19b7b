@@ -1,0 +1,151 @@
+---
+title: Downloading media
+description: Learn how to download videos and audio from supported platforms using VidArchive
+---
+
+VidArchive makes it easy to download media from popular platforms including YouTube, Twitter, Instagram, Reddit, TikTok, and more. This guide walks you through the complete download workflow.
+
+## Supported platforms
+
+VidArchive supports downloading from these sources:
+
+- YouTube (videos, music, playlists)
+- Twitter/X
+- Instagram
+- Reddit
+- TikTok
+- Dailymotion
+- Pinterest
+- Rumble
+
+## Basic download workflow
+
+<Steps>
+  <Step title="Enter media URL">
+    Paste the URL of the video or audio you want to download into the input field on the home page. VidArchive will automatically detect the source platform and fetch media information.
+  </Step>
+
+  <Step title="Review media details">
+    Once the URL is processed, you'll see:
+    - Media thumbnail preview
+    - Title and uploader information
+    - Duration
+    - Available formats and quality options
+  </Step>
+
+  <Step title="Select format and quality">
+    Click on the format selector to choose your preferred:
+    - File extension (mp4, webm, mkv, etc.)
+    - Resolution (e.g., 1080p, 720p, 480p)
+    - Video codec (H.264, VP9, AV1, etc.)
+    - Audio codec (AAC, Opus, etc.)
+    - Estimated file size
+
+    The selected format displays the FPS, codecs, and file size information.
+  </Step>
+
+  <Step title="Choose download location">
+    By default, files download to your system's Downloads folder. Click the folder icon to select a different destination folder for this download.
+  </Step>
+
+  <Step title="Start download">
+    Click the Download button to add the file to your download queue. The download will start automatically based on your concurrent download settings.
+  </Step>
+</Steps>
+
+## Format selection
+
+When you click on the format selector, you'll see all available formats in a modal window. Each format shows:
+
+- **Extension**: Output file type (mp4, webm, etc.)
+- **Resolution**: Video dimensions (e.g., 1920x1080)
+- **FPS**: Frames per second
+- **Video codec**: Compression format (H.264, VP9, AV1, etc.)
+- **Audio codec**: Audio compression format
+- **File size**: Approximate or exact file size
+- **Format note**: Quality indicator (e.g., "1080p")
+
+<Tip>
+VidArchive will automatically merge video and audio streams when needed to provide the best quality output.
+</Tip>
+
+## Download sections
+
+You can download specific portions of a video instead of the entire file:
+
+1. Enter a **start time** in HH:MM:SS format (e.g., 00:05:30)
+2. Enter an **end time** in HH:MM:SS format (e.g., 00:10:45)
+3. Toggle **Force keyframes at cuts** to ensure clean cuts at the specified timestamps
+
+<Note>
+Leave the start time empty to begin from the start of the video. The end time can also be left empty to download until the end.
+</Note>
+
+## Extra download options
+
+### Embed into media
+
+Enhance your downloaded files by embedding additional data:
+
+- **Embed thumbnail**: Add the video thumbnail as album art
+- **Embed chapters**: Include chapter markers if available
+- **Embed subs**: Add subtitles directly into the video file
+- **Embed metadata**: Include title, description, uploader, and other metadata
+
+### Additional files
+
+Download supplementary files alongside the media:
+
+- **Write description**: Save the video description as a text file
+- **Write comments**: Download video comments to a separate file
+- **Write thumbnail**: Save the thumbnail image
+- **Write subs**: Download subtitles as separate files
+- **Write auto subs**: Download auto-generated subtitles
+
+### Output format options
+
+<Accordion title="Merge output format">
+  Choose the container format for merged video and audio streams:
+  - MP4
+  - MKV
+  - WebM
+  - FLV
+  - And more
+
+  This is useful when you want to ensure compatibility with specific players or devices.
+</Accordion>
+
+<Accordion title="Recode output">
+  Re-encode the downloaded media to a different format:
+  - MP4
+  - MKV
+  - WebM
+  - AVI
+  - FLV
+  - OGG
+
+  Use this when you need to convert the media to a specific format after download.
+</Accordion>
+
+## Live stream downloads
+
+For YouTube live streams, you have an additional option:
+
+- **Live from start**: Download the stream from the beginning, even if you joined late
+
+<Warning>
+This option is only available for YouTube live streams and may not work for all streams.
+</Warning>
+
+## After starting a download
+
+Once you initiate a download:
+
+1. The download appears in the Downloads page
+2. You can see real-time progress with percentage and speed information
+3. Downloads respect your maximum concurrent downloads setting (configured in Settings)
+4. Additional downloads are queued automatically when the limit is reached
+
+<Info>
+Navigate to the Downloads page to monitor active downloads, manage the queue, and access your download history.
+</Info>

@@ -1,0 +1,334 @@
+---
+title: yt-dlp integration
+description: Learn how VidArchive integrates with yt-dlp for video downloading, including version management, command building, and supported platforms
+---
+
+VidArchive uses [yt-dlp](https://github.com/yt-dlp/yt-dlp) as its core video downloading engine. The application provides a user-friendly interface while leveraging yt-dlp's powerful downloading capabilities.
+
+## Architecture
+
+VidArchive integrates with yt-dlp through the `yt-dlp-command-builder` library, which provides a type-safe API for constructing yt-dlp commands. The integration is primarily handled in `/src/main/utils/yt-dlp/`.
+
+### Command builder pattern
+
+All yt-dlp commands are built using the `YtdlpCommandBuilder` class, which ensures proper argument formatting and validation:
+
+```typescript
+const builder = new YtdlpCommandBuilder(YTDLP_EXE_PATH)
+  .jsRuntime('deno')
+  .jsRuntime('node')
+  .jsRuntime('quickjs', settings.get('jsRuntimePath'))
+  .format(formatId)
+  .output(targetDownloadFilePath);
+```
+
+## Supported platforms
+
+VidArchive supports downloading from the following platforms through yt-dlp:
+
+<Tabs>
+  <Tab title="Video sources">
+    - YouTube videos
+    - YouTube Music
+    - Twitter videos
+    - Instagram videos
+    - Reddit videos
+    - Dailymotion videos
+    - Pinterest videos
+    - Rumble videos
+    - TikTok videos
+  </Tab>
+  <Tab title="Playlist sources">
+    - YouTube playlists
+    - YouTube Music playlists
+  </Tab>
+</Tabs>
+
+These sources are defined in `/src/shared/data/index.ts` as `mediaSources` and `playlistSources` arrays.
+
+## Version management
+
+VidArchive manages yt-dlp versions automatically to ensure compatibility and access to the latest features.
+
+### Automatic updates
+
+The application can update yt-dlp to specific versions or release channels:
+
+```typescript
+export function getUpdateCommand(channel: ReleaseChannel, version: string) {
+  return new YtdlpCommandBuilder(YTDLP_EXE_PATH).updateTo(channel, version);
+}
+```
+
+<Note>
+  VidArchive stores the yt-dlp executable path in `YTDLP_EXE_PATH` and manages updates through the settings system.
+</Note>
+
+### JavaScript runtime configuration
+
+yt-dlp requires a JavaScript runtime for certain extractors. VidArchive configures multiple fallback runtimes:
+
+1. **Deno** - Primary runtime
+2. **Node.js** - Secondary runtime
+3. **QuickJS** - Custom runtime from settings
+
+This ensures maximum compatibility across different video sources.
+
+## Command types
+
+VidArchive uses three main types of yt-dlp commands:
+
+### Info JSON command
+
+Retrieves video metadata without downloading:
+
+```typescript
+export function getInfoJsonCommand(url: string, source: Source, infoJsonPath: string) {
+  let builder = new YtdlpCommandBuilder(YTDLP_EXE_PATH)
+    .jsRuntime('deno')
+    .jsRuntime('node')
+    .jsRuntime('quickjs', settings.get('jsRuntimePath'))
+    .skipDownload()
+    .writeInfoJson()
+    .output(infoJsonPath.split('.info.json')[0])
+    .url(url);
+
+  builder = addCookiesToCommand(builder);
+
+  if (source === 'youtube-playlist' || source === 'youtube-music-playlist') {
+    builder.flatPlaylist();
+  }
+
+  return builder;
+}
+```
+
+<Accordion title="What information is retrieved?">
+  The info JSON contains comprehensive metadata including:
+  - Video title, description, and uploader
+  - Available formats and resolutions
+  - Thumbnails and duration
+  - Upload date and view count
+  - Subtitle availability
+  - Live stream status
+</Accordion>
+
+### Live from start command
+
+For live streams, VidArchive fetches special formats that support downloading from the beginning:
+
+```typescript
+export function getLiveFromStartFormatsCommand(url: string) {
+  let builder = new YtdlpCommandBuilder(YTDLP_EXE_PATH)
+    .jsRuntime('deno')
+    .jsRuntime('node')
+    .jsRuntime('quickjs', settings.get('jsRuntimePath'))
+    .listFormats()
+    .url(url)
+    .liveFromStart();
+
+  builder = addCookiesToCommand(builder);
+
+  return builder;
+}
+```
+
+### Download command
+
+The main download command includes extensive configuration options:
+
+```typescript
+export function getDownloadCommand(downloadOptions: DownloadOptions) {
+  let builder = new YtdlpCommandBuilder(YTDLP_EXE_PATH)
+    .jsRuntime('deno')
+    .jsRuntime('node')
+    .jsRuntime('quickjs', settings.get('jsRuntimePath'))
+    .newline()
+    .ffmpegLocation(settings.get('ffmpegPath'));
+
+  builder = addCookiesToCommand(builder);
+
+  // Format selection with audio merging
+  const hasAudio = selectedFormat.acodec && selectedFormat.acodec !== 'none';
+  if (hasAudio) {
+    builder.format(formatId);
+  } else {
+    builder.format(formatId + '+ba'); // Merge with best audio
+  }
+
+  // Time-based downloading
+  if (downloadSections.startTime && downloadSections.endTime) {
+    builder.downloadSections({
+      start: downloadSections.startTime,
+      end: downloadSections.endTime
+    });
+  }
+
+  return { builder, targetDownloadFileName };
+}
+```
+
+## Cookie management
+
+Many video platforms require authentication. VidArchive supports two cookie sources:
+
+<Tabs>
+  <Tab title="Cookie file">
+    Import cookies from a Netscape-format cookie file:
+
+    ```typescript
+    if (settings.get('cookiesFilePath').length > 0) {
+      builder.cookies(settings.get('cookiesFilePath'));
+    }
+    ```
+  </Tab>
+  <Tab title="Browser cookies">
+    Extract cookies directly from your browser:
+
+    ```typescript
+    if (settings.get('cookiesBrowser').length > 0) {
+      if (settings.get('cookiesBrowserProfile').length > 0) {
+        builder.cookiesFromBrowser(
+          settings.get('cookiesBrowser') as SupportedCookieBrowser,
+          { profile: settings.get('cookiesBrowserProfile') }
+        );
+      } else {
+        builder.cookiesFromBrowser(
+          settings.get('cookiesBrowser') as SupportedCookieBrowser
+        );
+      }
+    }
+    ```
+
+    <Warning>
+      Browser cookie extraction may fail if the browser is running or if permissions are restricted.
+    </Warning>
+  </Tab>
+</Tabs>
+
+## Download options
+
+VidArchive exposes numerous yt-dlp features through its UI:
+
+### Format selection
+
+- Automatic audio merging for video-only formats
+- Resolution and codec preferences
+- Live stream format selection
+
+### Time-based downloads
+
+```typescript
+// Download a specific section
+builder.downloadSections({
+  start: '00:05:00',
+  end: '00:10:00'
+});
+
+// Force keyframes at cut points for precise timing
+builder.forceKeyframesAtCuts();
+```
+
+### Metadata embedding
+
+<Accordion title="Available embedding options">
+  - **Thumbnails** - Embed video thumbnail in file
+  - **Chapters** - Include chapter markers
+  - **Subtitles** - Embed subtitle tracks
+  - **Metadata** - Add title, uploader, description
+  - **Comments** - Download and save comments
+</Accordion>
+
+### Output format control
+
+```typescript
+// Set container format
+if (extraOptions.mergeOutputFormat) {
+  builder.mergeOutputFormat(`${extraOptions.mergeOutputFormat}/mkv`);
+}
+
+// Recode to specific format
+if (extraOptions.recodeOutput) {
+  builder.recodeVideo(extraOptions.recodeOutput);
+}
+```
+
+## Info JSON caching
+
+VidArchive caches video metadata to reduce API calls and improve performance:
+
+### Expiration handling
+
+Video URLs expire after a certain time. VidArchive tracks expiration and automatically refetches when needed:
+
+```typescript
+if (await pathExists(infoJsonPath)) {
+  const expireTime = await getExpireTime(infoJsonPath);
+  if (new Date().toISOString() > expireTime!) {
+    logger.info(`Links expired for ${url} on ${new Date(expireTime!)}`);
+    return await createInfoJson(url, source, infoJsonPath);
+  } else {
+    logger.info(`Links for ${url} expire at ${new Date(expireTime!)}`);
+    return await readJson<MediaInfoJson>(infoJsonPath);
+  }
+}
+```
+
+<Info>
+  YouTube and TikTok URLs typically expire after 6 hours. Other platforms may have different expiration times.
+</Info>
+
+### Cache structure
+
+Info JSON files are stored in:
+```
+MEDIA_DATA_FOLDER_PATH/
+  ├── youtube-video/
+  │   └── [video-id]/
+  │       ├── [video-id].info.json
+  │       ├── [title].jpg
+  │       └── [title].description
+  ├── twitter-video/
+  └── ...
+```
+
+## Error handling
+
+VidArchive handles various yt-dlp errors gracefully:
+
+<Accordion title="Common errors and handling">
+  - **No video formats found** - Displayed to user
+  - **HTTPSConnection errors** - Connection error notification
+  - **HTTP errors** - Specific HTTP error messages
+  - **Cookie errors** - Browser cookie extraction failures
+  - **DPAPI errors** - Windows credential manager issues
+</Accordion>
+
+All yt-dlp stderr output is captured and sent to the UI for user visibility.
+
+## Process management
+
+yt-dlp runs as a child process, spawned with proper encoding:
+
+```typescript
+const child = spawn(baseCommand, args);
+
+child.stdout.setEncoding('utf-8');
+child.stderr.setEncoding('utf-8');
+
+child.stdout.on('data', (data) => {
+  // Progress tracking
+});
+
+child.stderr.on('data', (data) => {
+  // Error handling
+});
+
+child.on('close', (code) => {
+  // Completion handling
+});
+```
+
+<Tip>
+  VidArchive uses the `newline()` option to ensure proper progress reporting on all platforms.
+</Tip>

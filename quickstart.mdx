@@ -1,80 +1,169 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: Quick start
+description: Download your first media file with VidArchive in under 2 minutes
 ---
 
-## Get started in three steps
-
-Get your documentation site running locally and make your first customization.
-
-### Step 1: Set up your local environment
-
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 2: Deploy your changes
-
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
-
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
-
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 3: Go live
-
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
-
-## Next steps
-
-Now that you have your docs running, explore these key features:
-
-<CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
-</CardGroup>
+This guide walks you through downloading your first media file using VidArchive. By the end, you'll understand the basic workflow and be ready to explore more advanced features.
 
 <Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
+  Make sure you have VidArchive installed. If not, check out the [installation guide](/installation) first.
 </Note>
+
+## Download your first media
+
+<Steps>
+  <Step title="Launch VidArchive">
+    Open VidArchive from your applications menu or desktop shortcut.
+    
+    On first launch, VidArchive will automatically check for yt-dlp and ffmpeg. If they're not found, you'll be prompted to download them - just click **Download** and wait for the process to complete.
+  </Step>
+
+  <Step title="Enter a media URL">
+    Navigate to the **Home** page using the sidebar. In the URL input field at the top, paste or type a media URL from any supported platform (YouTube, Twitter, Instagram, Reddit, TikTok, etc.).
+    
+    Click **Fetch** or press Enter to retrieve the media information.
+    
+    <Info>
+      VidArchive automatically validates the URL and checks if the source is supported. If the URL is invalid or unsupported, you'll see an error message.
+    </Info>
+  </Step>
+
+  <Step title="Review media information">
+    Once the media information is fetched, you'll see:
+    
+    - **Preview thumbnail** - A visual preview of the media
+    - **Title and uploader** - Basic metadata about the media
+    - **Duration** - Total length of the media
+    - **Format selector** - Pre-selected best quality format
+    - **Details panel** - Additional information like upload date, view count, description
+  </Step>
+
+  <Step title="Select your format">
+    Click the **Select format** dropdown to see the pre-selected format. If you want to choose a different format:
+    
+    1. Click **All formats** to open the format selection modal
+    2. Browse through available formats organized by type (video+audio, video-only, audio-only)
+    3. Each format shows resolution, codec, file size, and quality information
+    4. Select your preferred format and click **Confirm**
+    
+    <Tip>
+      For most use cases, the default "Best quality (video+audio)" selection works perfectly. It automatically picks the highest quality format with both video and audio.
+    </Tip>
+  </Step>
+
+  <Step title="Configure download options (optional)">
+    Expand the **Extra options** section to customize your download:
+    
+    **Embed options** - Add metadata to your file
+    - Thumbnail as cover art
+    - Chapters for navigation
+    - Subtitles burned into video
+    - Metadata fields (title, artist, album, etc.)
+    
+    **Write additional files**
+    - Video description as text file
+    - Comments/live chat
+    - Thumbnail images
+    - Subtitle files (SRT, VTT)
+    
+    **Download sections** - Download specific time ranges instead of the entire media
+    
+    **Output format** - Convert to MP4, MKV, or WebM, or recode video quality
+    
+    For your first download, you can skip these options and use the defaults.
+  </Step>
+
+  <Step title="Choose download location">
+    By default, VidArchive downloads to your system's Downloads folder. To change this:
+    
+    1. Click the folder icon next to the download path
+    2. Select a different folder from the file picker
+    3. Optionally, enable **Remember this folder** in Settings to use it for future downloads
+  </Step>
+
+  <Step title="Start the download">
+    Click the **Download** button to start downloading your media file.
+    
+    You'll be automatically redirected to the **Downloads** page where you can:
+    - Monitor real-time progress with a progress bar and percentage
+    - See download speed and estimated time remaining
+    - View the yt-dlp command output in real-time
+    
+    <Warning>
+      Don't close VidArchive while downloads are in progress. You can minimize it, but closing will cancel active downloads.
+    </Warning>
+  </Step>
+
+  <Step title="Access your downloaded media">
+    When the download completes:
+    
+    - The progress bar turns green and shows "100%"
+    - The status changes to "Completed"
+    - You can click **Show in folder** to open the download location
+    - Or click **Play media** to open the file in your default media player
+    
+    Your download is also saved to **Download history** where you can access it anytime.
+  </Step>
+</Steps>
+
+## What's next?
+
+Now that you've successfully downloaded your first media file, explore these features:
+
+<CardGroup cols={2}>
+  <Card
+    title="Downloading media"
+    icon="circle-play"
+    href="/features/downloading-media"
+  >
+    Learn about format selection, quality options, and advanced download configurations
+  </Card>
+  <Card
+    title="Managing downloads"
+    icon="list-check"
+    href="/features/managing-downloads"
+  >
+    Discover how to pause, resume, and manage multiple downloads simultaneously
+  </Card>
+  <Card
+    title="URL history"
+    icon="clock-rotate-left"
+    href="/features/url-history"
+  >
+    Keep track of all media URLs you've fetched for easy access
+  </Card>
+  <Card
+    title="Settings"
+    icon="gear"
+    href="/features/settings"
+  >
+    Customize VidArchive to match your preferences and workflow
+  </Card>
+</CardGroup>
+
+## Common questions
+
+<Accordion title="Can I download multiple files at once?">
+  Yes! VidArchive supports concurrent downloads. By default, it allows 2 simultaneous downloads, but you can adjust this in **Settings** up to 5 concurrent downloads.
+  
+  Any additional downloads will be queued and start automatically when a slot becomes available.
+</Accordion>
+
+<Accordion title="Where are my downloaded files saved?">
+  By default, VidArchive saves files to your system's Downloads folder. You can:
+  - Change the location for each download using the folder picker
+  - Set a default folder in **Settings** → **Remember previous downloads folder**
+  - Use custom filename templates in **Settings** (advanced)
+</Accordion>
+
+<Accordion title="What if the download fails?">
+  If a download fails:
+  1. Check the error message in the download output
+  2. Common issues include network problems, unavailable media, or format issues
+  3. Click **Retry** to attempt the download again
+  4. If it continues to fail, see the [troubleshooting guide](/advanced/troubleshooting)
+</Accordion>
+
+<Accordion title="Can I pause and resume downloads?">
+  Yes! Use the **Pause** button on any active download to pause it. Click **Resume** to continue from where it left off. You can also pause all downloads at once using **Pause all** in the Downloads page.
+</Accordion>

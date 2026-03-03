@@ -1,0 +1,208 @@
+---
+title: Installation
+description: Download and install VidArchive on Windows or Linux
+---
+
+VidArchive is available for Windows and Linux operating systems. Choose your platform below and follow the installation steps.
+
+<Note>
+  macOS is not currently supported. Windows and Linux are the only supported platforms at this time.
+</Note>
+
+## System requirements
+
+Before installing VidArchive, ensure your system meets these minimum requirements:
+
+- **Windows**: Windows 10 or later (64-bit)
+- **Linux**: Any modern Linux distribution with support for .deb packages or AppImage
+- **RAM**: 4GB minimum, 8GB recommended
+- **Storage**: 200MB for application, plus space for downloaded media
+- **Internet**: Active internet connection for downloading media
+
+<Info>
+  VidArchive includes yt-dlp and ffmpeg binaries, so you don't need to install them separately. The application manages these dependencies automatically.
+</Info>
+
+## Windows installation
+
+<Steps>
+  <Step title="Download the installer">
+    Download the latest `.exe` installer from the VidArchive releases page.
+    
+    The installer is typically named `VidArchive-Setup-x.x.x.exe` where `x.x.x` is the version number.
+  </Step>
+  
+  <Step title="Run the installer">
+    Double-click the downloaded `.exe` file to launch the installer.
+    
+    <Warning>
+      Windows may show a SmartScreen warning for unsigned applications. Click "More info" and then "Run anyway" to proceed with the installation.
+    </Warning>
+  </Step>
+  
+  <Step title="Complete installation">
+    Follow the installation wizard:
+    
+    - Accept the license agreement
+    - Choose the installation directory (default is recommended)
+    - Select whether to create a desktop shortcut
+    - Click "Install" to begin the installation
+    
+    The installer will extract all necessary files and set up VidArchive on your system.
+  </Step>
+  
+  <Step title="Launch VidArchive">
+    Once installation is complete, you can launch VidArchive from:
+    
+    - The desktop shortcut (if you created one)
+    - The Start Menu under "VidArchive"
+    - The installation directory
+    
+    The application will open with a clean interface ready for your first download.
+  </Step>
+</Steps>
+
+## Linux installation
+
+VidArchive provides two installation options for Linux: `.deb` packages for Debian-based distributions and `.AppImage` for universal compatibility.
+
+### Option 1: Debian package (.deb)
+
+Recommended for Ubuntu, Debian, Linux Mint, and other Debian-based distributions.
+
+<Steps>
+  <Step title="Download the .deb package">
+    Download the latest `.deb` package from the VidArchive releases page.
+    
+    The file is typically named `vid-archive_x.x.x_amd64.deb`.
+  </Step>
+  
+  <Step title="Install the package">
+    Install using your package manager or the command line:
+    
+    ```bash
+    sudo dpkg -i vid-archive_x.x.x_amd64.deb
+    ```
+    
+    If you encounter dependency errors, run:
+    
+    ```bash
+    sudo apt-get install -f
+    ```
+  </Step>
+  
+  <Step title="Launch VidArchive">
+    After installation, launch VidArchive from:
+    
+    - Your application menu
+    - The command line: `vid-archive`
+    
+    <Note>
+      On some systems, you may need to disable the Electron sandbox. If VidArchive fails to launch, try running: `ELECTRON_DISABLE_SANDBOX=1 vid-archive`
+    </Note>
+  </Step>
+</Steps>
+
+### Option 2: AppImage (universal)
+
+Recommended for other Linux distributions or if you prefer not to install packages system-wide.
+
+<Steps>
+  <Step title="Download the AppImage">
+    Download the latest `.AppImage` file from the VidArchive releases page.
+    
+    The file is typically named `VidArchive-x.x.x.AppImage`.
+  </Step>
+  
+  <Step title="Make it executable">
+    Open a terminal in your downloads directory and make the AppImage executable:
+    
+    ```bash
+    chmod +x VidArchive-x.x.x.AppImage
+    ```
+  </Step>
+  
+  <Step title="Run VidArchive">
+    Double-click the AppImage file or run it from the terminal:
+    
+    ```bash
+    ./VidArchive-x.x.x.AppImage
+    ```
+    
+    <Tip>
+      You can move the AppImage to any location on your system. Many users keep AppImages in a dedicated folder like `~/Applications` for easy access.
+    </Tip>
+  </Step>
+</Steps>
+
+## First launch
+
+When you first launch VidArchive, the application will:
+
+1. **Initialize the application data directory** - Creates necessary folders for storing settings, download history, and cached metadata
+2. **Set up yt-dlp and ffmpeg** - Ensures the required binaries are available (they're bundled with the application)
+3. **Display the home screen** - You'll see the main interface with a URL input field ready to accept your first media URL
+
+You'll see a clean interface with:
+- A navigation sidebar with Home, Downloads, and Settings sections
+- A URL input field at the top where you can paste any media URL
+- An empty URL history area (this will populate as you use the app)
+
+<Info>
+  VidArchive stores all application data locally on your computer. Your download history, URL history, and settings are never sent to external servers.
+</Info>
+
+## Verifying installation
+
+To verify VidArchive is working correctly:
+
+1. Launch the application
+2. Check that the main window opens without errors
+3. The interface should display three main sections in the sidebar: Home, Downloads, and Settings
+4. Try navigating between sections to ensure the UI is responsive
+
+## Updating VidArchive
+
+VidArchive includes an auto-updater that will notify you when new versions are available.
+
+<Steps>
+  <Step title="Check for updates">
+    Navigate to **Settings** in the sidebar. The app will check for updates automatically, or you can manually check in the settings panel.
+  </Step>
+  
+  <Step title="Install updates">
+    When an update is available, you'll see a notification. Follow the prompts to download and install the latest version.
+    
+    <Warning>
+      Close any active downloads before updating to avoid interrupting them. VidArchive will preserve your download history and settings across updates.
+    </Warning>
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+### VidArchive won't launch on Linux
+
+If VidArchive fails to launch on Linux, try running it with the sandbox disabled:
+
+```bash
+ELECTRON_DISABLE_SANDBOX=1 vid-archive
+```
+
+For AppImage users:
+
+```bash
+ELECTRON_DISABLE_SANDBOX=1 ./VidArchive-x.x.x.AppImage
+```
+
+### Missing dependencies
+
+VidArchive bundles yt-dlp and ffmpeg, but if you encounter issues, check the Settings page to verify that the binaries are detected correctly.
+
+### Antivirus warnings on Windows
+
+Some antivirus software may flag VidArchive or its bundled binaries. This is a false positive. You can safely add VidArchive to your antivirus exceptions list.
+
+## Next steps
+
+Now that VidArchive is installed, head over to the [quick start guide](/quickstart) to download your first media file.

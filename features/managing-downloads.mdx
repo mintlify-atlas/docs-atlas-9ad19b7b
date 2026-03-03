@@ -1,0 +1,198 @@
+---
+title: Managing downloads
+description: Control active downloads, manage queues, and organize your download history in VidArchive
+---
+
+The Downloads page provides complete control over your active and completed downloads. Monitor progress, pause and resume downloads, retry failed items, and manage your download history.
+
+## Download states
+
+Downloads can be in one of these states:
+
+- **Downloading**: Currently being downloaded
+- **Waiting**: Queued and waiting to start (when concurrent download limit is reached)
+- **Paused**: Temporarily stopped by user
+- **Completed**: Successfully downloaded
+- **Failed**: Download encountered an error
+
+## Viewing downloads
+
+The Downloads page displays three categories:
+
+1. **Running downloads**: Currently active downloads with real-time progress
+2. **Queued downloads**: Waiting to start based on concurrent download limits
+3. **Download history**: All completed, failed, and paused downloads
+
+The header shows counts for each category, for example: Downloads (15) (2) (3) indicates 15 historical downloads, 2 running, and 3 queued.
+
+## Download progress information
+
+Each active download displays:
+
+- **Thumbnail**: Preview image with video duration
+- **Title**: Media title
+- **Uploader**: Channel or account name
+- **Format**: Selected quality and format (e.g., "1080p - mp4")
+- **Time range**: If downloading a section, shows start and end times
+- **Progress bar**: Visual indicator with color coding:
+  - Blue: Downloading
+  - Yellow: Waiting/Queued
+  - Gray: Paused
+  - Red: Failed
+  - Green: Completed
+- **Progress details**: Download speed, file size, ETA, and percentage
+
+## Controlling individual downloads
+
+### Pause a download
+
+<Steps>
+  <Step title="Locate the download">
+    Find the download in the running or queued section.
+  </Step>
+  
+  <Step title="Click pause button">
+    Click the pause icon in the download card's footer. The download will stop and move to a paused state.
+  </Step>
+</Steps>
+
+<Note>
+You can pause both active downloads and queued downloads. Paused downloads remain in your history until you resume or delete them.
+</Note>
+
+### Resume a download
+
+<Steps>
+  <Step title="Find paused download">
+    Paused downloads appear in the download history with a gray progress bar.
+  </Step>
+  
+  <Step title="Click resume button">
+    Click the play icon to resume the download. It will either start immediately or enter the queue based on your concurrent download settings.
+  </Step>
+</Steps>
+
+### Retry a failed download
+
+When a download fails due to network issues or other errors:
+
+<Steps>
+  <Step title="Identify failed download">
+    Failed downloads show a red progress bar and error status.
+  </Step>
+  
+  <Step title="Click retry button">
+    Click the retry icon (circular arrow) to attempt the download again.
+  </Step>
+</Steps>
+
+<Tip>
+If a download repeatedly fails, check your internet connection or try selecting a different format. Some formats may not be available anymore.
+</Tip>
+
+## Bulk download operations
+
+The options menu (three-dot icon in the header) provides bulk actions:
+
+### Pause all downloads
+
+Stops all currently running downloads at once. Use this when you need to:
+- Free up bandwidth temporarily
+- Prevent interference with other network activities
+- Stop downloads before closing the application
+
+### Pause waiting downloads
+
+Pauses only the downloads in the queue, while allowing active downloads to complete.
+
+### Resume paused downloads
+
+Restarts all paused downloads. They will either begin immediately or enter the queue based on available slots.
+
+### Retry failed downloads
+
+Attempts to restart all failed downloads simultaneously. This is useful after resolving network issues or when multiple downloads failed at once.
+
+<Warning>
+Retrying many failed downloads at once may queue most of them based on your concurrent download limit.
+</Warning>
+
+## Queue management
+
+VidArchive automatically manages download queues based on your **maximum concurrent downloads** setting:
+
+1. Up to the configured number of downloads run simultaneously (default: 2)
+2. Additional downloads automatically enter the waiting state
+3. When an active download completes or is paused, the next queued download starts
+4. You can configure up to 5 concurrent downloads in Settings
+
+<Accordion title="Why limit concurrent downloads?">
+  Limiting concurrent downloads helps:
+  - Prevent bandwidth saturation
+  - Maintain stable download speeds
+  - Reduce system resource usage
+  - Ensure downloads complete more reliably
+
+  Most users achieve better overall performance with 2-3 concurrent downloads rather than downloading many files simultaneously.
+</Accordion>
+
+## Download history
+
+Completed and failed downloads remain in your history, providing:
+
+### Viewing completed downloads
+
+Each completed download card shows:
+- Full metadata (title, uploader, format, duration)
+- Download completion status
+- Quick actions to access the file
+
+### Actions for completed downloads
+
+- **Show in folder**: Opens the file location in your system file browser
+- **Play in default player**: Opens the media file with your system's default player
+- **Play**: Opens the built-in media player within VidArchive
+- **Delete from history**: Removes the entry from your history (doesn't delete the file)
+
+<Info>
+Deleting an item from history only removes the record from VidArchive. The downloaded file remains on your system.
+</Info>
+
+### Searching download history
+
+Use the search box in the Downloads header to:
+
+1. Type any part of the title, uploader, or URL
+2. Results filter in real-time
+3. Clear the search to see all downloads again
+
+### Clearing download history
+
+To remove all entries from download history:
+
+<Steps>
+  <Step title="Open options menu">
+    Click the three-dot menu icon in the Downloads header.
+  </Step>
+  
+  <Step title="Select delete history">
+    Choose "Delete download history" from the menu.
+  </Step>
+  
+  <Step title="Confirm deletion">
+    Confirm the action in the dialog that appears.
+  </Step>
+</Steps>
+
+<Warning>
+This action cannot be undone. Your downloaded files will not be deleted, but you'll lose the history records and metadata.
+</Warning>
+
+## Accessing media details
+
+For any download (active, completed, or failed), you can:
+
+1. Click the **info icon** to view detailed metadata
+2. Click the **thumbnail** to navigate back to the media info page
+3. Click the **external link** icon to open the original URL in your browser
+4. Click the **photo icon** to view the thumbnail image in your browser

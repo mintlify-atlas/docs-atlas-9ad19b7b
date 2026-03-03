@@ -1,0 +1,218 @@
+---
+title: URL history
+description: View, search, and manage your media URL history in VidArchive
+---
+
+VidArchive automatically tracks every URL you check, making it easy to revisit media you've previously viewed or downloaded. The URL history feature helps you keep track of content and quickly access media information.
+
+## What is URL history?
+
+URL history stores metadata for every media URL you process in VidArchive, including:
+
+- Media title
+- Thumbnail image
+- Uploader/channel name
+- Duration
+- Source platform
+- Date added
+- Original URL
+
+This creates a personal catalog of all media you've explored, whether or not you downloaded it.
+
+<Info>
+URL history is separate from download history. A URL entry is created when you fetch media information, even if you don't proceed with downloading.
+</Info>
+
+## Viewing URL history
+
+Access your URL history from the Home page:
+
+1. The history appears below the URL input field
+2. Each entry displays as a card with thumbnail, title, and uploader
+3. The total count appears in the header (e.g., "Url History (45)")
+4. Entries are sorted by date, with most recent first
+
+### URL history card details
+
+Each history item shows:
+
+- **Thumbnail**: Preview image with duration overlay
+- **Title**: Full media title (truncated if too long)
+- **Uploader**: Channel or account name (clickable to open their page)
+- **Date**: When the URL was added to history
+- **Source platform**: Icon indicating YouTube, Twitter, Instagram, etc.
+
+## Revisiting media
+
+To access media information from your URL history:
+
+<Steps>
+  <Step title="Find the entry">
+    Locate the media in your URL history list or use search to find it.
+  </Step>
+  
+  <Step title="Click thumbnail">
+    Click on the thumbnail to navigate to the media info page. VidArchive will fetch current information about the media.
+  </Step>
+  
+  <Step title="Configure download">
+    From the media info page, you can select format, quality, and other options to download the media.
+  </Step>
+</Steps>
+
+<Note>
+Clicking a history item fetches fresh metadata from the platform, ensuring you get current format availability and information.
+</Note>
+
+## Quick actions
+
+Each URL history card provides quick access buttons:
+
+### View more information
+
+Click the **info icon** to open a modal with detailed metadata:
+- Full title
+- Description
+- Uploader details
+- Platform information
+- Original upload date
+- And more
+
+### Open in browser
+
+Click the **external link icon** to open the media URL in your default web browser. Useful for:
+- Viewing the media on the original platform
+- Reading comments
+- Checking for updates or new content from the uploader
+
+### View thumbnail
+
+Click the **photo icon** to open the full thumbnail image in your browser.
+
+## Searching URL history
+
+Quickly find specific media in your history:
+
+<Steps>
+  <Step title="Open search">
+    Click the search icon in the URL history header.
+  </Step>
+  
+  <Step title="Enter search terms">
+    Type any part of:
+    - Video title
+    - Uploader name
+    - URL
+  </Step>
+  
+  <Step title="View results">
+    Results filter in real-time as you type. Matching entries appear below.
+  </Step>
+  
+  <Step title="Clear search">
+    Remove your search text to return to the full history view.
+  </Step>
+</Steps>
+
+<Tip>
+Search is case-insensitive and matches partial text, making it easy to find content even if you only remember part of the title.
+</Tip>
+
+## Managing history entries
+
+### Delete individual entries
+
+To remove a specific item from your URL history:
+
+<Steps>
+  <Step title="Locate the entry">
+    Find the media you want to remove from history.
+  </Step>
+  
+  <Step title="Click delete icon">
+    Click the trash icon in the bottom-right corner of the history card.
+  </Step>
+  
+  <Step title="Confirm deletion">
+    The entry is immediately removed from your history.
+  </Step>
+</Steps>
+
+<Note>
+Deleting a URL history entry only removes the metadata record. If you downloaded the media, the file remains on your system and in download history.
+</Note>
+
+### Clear all URL history
+
+To remove all entries from your URL history at once:
+
+<Steps>
+  <Step title="Click delete button">
+    Click the trash icon in the URL history header (top-right area).
+  </Step>
+  
+  <Step title="Confirm action">
+    A confirmation dialog will appear. Confirm that you want to delete all history.
+  </Step>
+  
+  <Step title="History cleared">
+    All URL history entries are removed. This action cannot be undone.
+  </Step>
+</Steps>
+
+<Warning>
+Clearing URL history is permanent and cannot be undone. Downloaded files and download history are not affected.
+</Warning>
+
+## History storage
+
+URL history is stored locally on your computer in VidArchive's data folder:
+
+- History persists between app sessions
+- Metadata includes cached thumbnails for faster loading
+- No size limit on history entries (limited only by disk space)
+
+<Accordion title="Where is history data stored?">
+  VidArchive stores URL history and metadata in the application's data folder:
+  - **Windows**: `%APPDATA%/VidArchive/mediaDataFolder`
+  - **macOS**: `~/Library/Application Support/VidArchive/mediaDataFolder`
+  - **Linux**: `~/.config/VidArchive/mediaDataFolder`
+
+  This folder contains JSON files with metadata and cached thumbnails. You can view the exact path in Settings under "Media Data Folder".
+</Accordion>
+
+## Privacy considerations
+
+Your URL history is completely private:
+
+- Stored only on your local device
+- Never sent to external servers
+- Not shared with anyone
+- Under your complete control
+
+You can delete individual entries or clear all history at any time.
+
+## Using history effectively
+
+<Accordion title="Build a watchlist">
+  Use URL history to create a personal watchlist:
+  1. Paste URLs for videos you want to watch later
+  2. Don't download immediately
+  3. Browse your history when you're ready
+  4. Download or access media as needed
+</Accordion>
+
+<Accordion title="Track content across platforms">
+  URL history helps you keep track of media from multiple sources:
+  - All platforms appear in one unified history
+  - Source icons help you identify platforms at a glance
+  - Search works across all sources simultaneously
+</Accordion>
+
+<Accordion title="Organize research and references">
+  For content creators and researchers:
+  - Keep track of reference videos
+  - Build a collection of related content
+  - Easy access to previously viewed material
+  - Search makes finding specific content quick
+</Accordion>
