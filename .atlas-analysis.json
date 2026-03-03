@@ -1,0 +1,63 @@
+{
+  "projectType": "saas",
+  "projectName": "VidArchive",
+  "projectDescription": "A desktop utility application for downloading and managing media through an interactive user interface.",
+  "theme": "almond",
+  "primaryColor": "#6366F1",
+  "lightColor": "#818CF8",
+  "darkColor": "#4F46E5",
+  "navigation": {
+    "groups": [
+      {
+        "group": "Get Started",
+        "pages": [
+          "introduction",
+          "installation",
+          "quickstart"
+        ]
+      },
+      {
+        "group": "Core Features",
+        "pages": [
+          "features/downloading-media",
+          "features/managing-downloads",
+          "features/url-history",
+          "features/settings"
+        ]
+      },
+      {
+        "group": "Advanced",
+        "pages": [
+          "advanced/yt-dlp-integration",
+          "advanced/ffmpeg-integration",
+          "advanced/database-schema",
+          "advanced/troubleshooting"
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Download video and audio media from supported platforms",
+    "Interactive format selection with quality options",
+    "Download progress tracking and management",
+    "URL and download history with search",
+    "Customizable settings and download paths",
+    "Integration with yt-dlp and ffmpeg",
+    "SQLite database for persistent storage",
+    "Cross-platform support (Windows, Linux)"
+  ],
+  "publicApiSurface": [
+    "Home page - URL input and media info display",
+    "Downloads page - Active and queued downloads management",
+    "Settings page - Application configuration",
+    "URL History - Previously viewed media URLs",
+    "Download History - Completed downloads",
+    "Media info display - Format selection and download options",
+    "Pause/resume downloads",
+    "Retry failed downloads",
+    "Export to various formats",
+    "Cookie-based authentication support",
+    "Custom download templates",
+    "Concurrent download limits"
+  ]
+}
